@@ -1,4 +1,25 @@
 import sys
+"""
+ReedSolomon.py
+Alia Babinet, Adela Dujsikova, and Lita Theng
+Final project for CS252: Algorithms at Carleton College
+
+Input: <fileName> <errorSize>
+<fileName> -> text file containing bit values in either hexadecimal or binary
+<errorSize> -> the number of error symbols (amount of error correction)
+"""
+def readFile(fileName):
+	inputFile = open(fileName, "r")
+	bitStream = []
+	Lines = inputFile.readlines()
+	for line in Lines:
+		line = line.replace('\n','')
+		if line[1] == "x":
+			bitStream.append(hex(int(line,16)))
+		else:
+			bitStream.append
+	inputFile.close
+	return bitStream
 
 ### Galois fields math - the inputs are binary
 
@@ -125,3 +146,17 @@ def isCorrupted(message, errorSize):
 
 msg[0] = 0xd2
 print(isCorrupted(msg,10))
+
+if __name__ == '__main__':
+	fileName = sys.argv[0]
+	errorSize = sys.argv[1]
+	
+	bitStream = readFile(fileName)
+	
+	encodedMessage = RSncode(bitStream, errorSize)
+	print("This is the encoded message for error size: " + errorSize + ": " + encodedMessage
+	
+	if isCorrupted(encodedMessage, errorSize):
+		print("This message has been corrupted: " + encodedMessage)
+	else:
+		print("This message has not been corrupted: " + encodedMessage)
