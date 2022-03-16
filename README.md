@@ -15,7 +15,7 @@ The format for inputting to this program is as follows:
 python3 reedSolomon.py fileName errorSize
 
 *fileName
-  This is the file that will be passed into the program containing the message. And example of this is seen in test.txt in this repository. It should be a text file that contains the message/bit stream such that each line contains a new bit. It can be in either hexidecimal or binary
+  This is the file that will be passed into the program containing the message. And example of this is seen in testHex.txt or testBin.txt in this repository. It should be a text file that contains the message/bit stream such that each line contains a new bit. It can be in either hexidecimal or binary
   
 *errorSize
   This is the number of error symobols which is desired. This corresponds with the robustness of the error correction (that is the amount of error correction that is occuring). This should be an integer value, for example 10.
