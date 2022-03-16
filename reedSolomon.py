@@ -163,9 +163,11 @@ if __name__ == '__main__':
     #message not corrupted yet, want to show that isCorrupted works
     print("Before corruption...")
     if isCorrupted(encodedMessage, errorSize):
-        print("This message has been corrupted: " + str(printEncoded))
+        print("This message has been corrupted: ")
+        str(printEncoded)
     else:
-        print("This message has not been corrupted: " + str(printEncoded))
+        print("This message has not been corrupted: ")
+        str(printEncoded)
 
     #corrupting message
     encodedMessage[1] = 24
@@ -173,7 +175,9 @@ if __name__ == '__main__':
     #checking if message is corrupted, should return that it is.
     print("After corruption...")
     if isCorrupted(encodedMessage, errorSize):
-        print("This message has been corrupted: " + str(printEncoded))
+        print("This message has been corrupted: ")
+        str(printEncoded)
     else:
-        print("This message has not been corrupted: " + str(printEncoded))
+        print("This message has not been corrupted: ")
+        str(printEncoded)
     
