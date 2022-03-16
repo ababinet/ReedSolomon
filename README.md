@@ -20,5 +20,5 @@ python3 reedSolomon.py fileName errorSize
 *errorSize
   This is the number of error symobols which is desired. This corresponds with the robustness of the error correction (that is the amount of error correction that is occuring). This should be an integer value, for example 10.
   
-If everything is inputted correctly, the corresponding encoded message will be printed out and then checked for corruption (returning a boolean value to represent if the message has been corrupted.
+The inputted message will be encoded and printed out with the parity bits. A corruption check will then be run on the message and parity bits to verify that the parity bits have been correctly generated. A small error is then introduced to the message, and a subsequent corruption check is run to illustrate that the error has then been detected.
 
