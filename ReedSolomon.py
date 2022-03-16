@@ -5,27 +5,39 @@ Alia Babinet, Adela Dujsikova, and Lita Theng
 Final project for CS252: Algorithms at Carleton College
 
 Input: <fileName> <errorSize>
-<fileName> -> text file containing bit values in either hexadecimal or binary
+<fileName> -> text file containing bit values in EITHER hexadecimal or binary
+(NOTE: The program will not execute properly if the message is not hexadecimal or binary)
 <errorSize> -> the number of error symbols (amount of error correction)
+
+Output: the message along with the error correction bits. Following this there is then
+a corruption check (should come back false). An error is then introduced and the corruption check is run again
 """
+
+## Global variables to be used in the computation##
 # -- exponents (anti-logarithms)
 GFEXP = [0] * 512
 # -- logarithms
 GFLOG = [0] * 256
 
+## Processes the inputted file and extracts the message
 def readFile(fileName):
     inputFile = open(fileName, "r")
     bitStream = []
     Lines = inputFile.readlines()
     for line in Lines:
         line = line.rstrip("/n")
+        # accounting for hexidecimal messages
         if 'x' in line:
             bitStream.append(int(line,16))
+        # accounting for binary messages
         else:
             bitStream.append(int(line, 2))
     inputFile.close
     return bitStream
 
+## Initializes the exponential and logarithmic tables that are used in
+## multiplication and division (this makes the algorithm faster as
+## it removes the need to re-calacuate values)
 def initialize():
     ### Galois fields math - the inputs are binary
     # Define the exponential and logarithmic tables
@@ -45,7 +57,6 @@ def initialize():
         GFEXP[i] = GFEXP[i - 255]
 
 # Define basic operations in Galois fields
-
 def gf_add(x, y):
     return x ^ y
 
@@ -54,6 +65,7 @@ def gf_sub(x, y):
 
 # NOTE: since we are in mod 2, addition and subtraction gives the same result
 
+## Define multiplication and division functions
 def gf_mul(x, y):
     if x == 0 or y == 0:
         return 0
@@ -99,15 +111,16 @@ def polyDiv(dividend, divisor):
     separator = -(len(divisor)-1)
     return output[:separator], output[separator:]
 
+## generates irreducible generator polynomial
 def generatorPoly(errorSize):
-    '''generates irreducible generator polynomial'''
+    
     val = [1]
     for i in range(0, errorSize):
         val = polyMul(val, [1, GFEXP[i]])
     return val
 
+## main encoding function that divides the message by the generator polynomial
 def RSEncode(input, errorSize):
-    '''main encoding function that divides the message by the generator polynomial'''
     gen = generatorPoly(errorSize)
     modInput = input + [0] * (len(gen)-1)
 
@@ -115,20 +128,9 @@ def RSEncode(input, errorSize):
 
     return input + remainder
 
-
-# # testing code for encoding
-# msg_hex = [0x40, 0xd2, 0x75, 0x47, 0x76, 0x17, 0x32, 0x06, 0x27, 0x26, 0x96, 0xc6, 0xc6, 0x96, 0x70, 0xec]
-
-# msg_bin = [0b01000000, 0b11010010, 0b01110101, 0b01000111, 0b01110110, 0b00010111, 0b00110010, 0b0110, 0b00100111, 0b00100110, 0b10010110, 0b11000110, 0b11000110, 0b10010110, 0b01110000, 0b11101100]
-
-# msg = RSEncode(msg_bin, 10)
-
-# for i in range(0,len(msg)):
-#     print(hex(msg[i]), end=' ')
-# #print(bin(msg[i]), end=' ')
-
-
-# Partial decoding
+## Partial decoding
+## This section is at the point where the a check of corruption is done
+## no error-correction has been implemented
 
 def gf_poly_eval(poly, x):
     '''evaluates a polynomial at a particular value of x'''
