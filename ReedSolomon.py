@@ -8,41 +8,41 @@ Input: <fileName> <errorSize>
 <fileName> -> text file containing bit values in either hexadecimal or binary
 <errorSize> -> the number of error symbols (amount of error correction)
 """
-def readFile(fileName):
-	inputFile = open(fileName, "r")
-	bitStream = []
-	Lines = inputFile.readlines()
-	for line in Lines:
-		line = line.replace('\n','')
-		if line[1] == "x":
-			bitStream.append(hex(int(line,16)))
-		else:
-			bitStream.append
-	inputFile.close
-	return bitStream
-
-### Galois fields math - the inputs are binary
-
 # -- exponents (anti-logarithms)
 GFEXP = [0] * 512
 # -- logarithms
 GFLOG = [0] * 256
-	
-# Define the exponential and logarithmic tables
-GFEXP[0] = 1
-val = 1
-for i in range(1, 255):
-	val <<= 1 # bitwise right shift and value assignment
-	if (val & 256): # & performs bitwise operations
-		val ^= 285
-			
-	# update the tables
-	GFEXP[i] = val
-	GFLOG[val] = i
-		
-# finalize the exponential table
-for i in range(255, 512):
-	GFEXP[i] = GFEXP[i - 255]
+
+def readFile(fileName):
+    inputFile = open(fileName, "r")
+    bitStream = []
+    Lines = inputFile.readlines()
+    for line in Lines:
+        line = line.rstrip("/n")
+        if 'x' in line:
+            bitStream.append(int(line,16))
+        else:
+            bitStream.append(int(line, 2))
+    inputFile.close
+    return bitStream
+
+def initialize():
+    ### Galois fields math - the inputs are binary
+    # Define the exponential and logarithmic tables
+    GFEXP[0] = 1
+    val = 1
+    for i in range(1, 255):
+        val <<= 1 # bitwise right shift and value assignment
+        if (val & 256): # & performs bitwise operations
+            val ^= 285
+            
+        # update the tables
+        GFEXP[i] = val
+        GFLOG[val] = i
+        
+    # finalize the exponential table
+    for i in range(255, 512):
+        GFEXP[i] = GFEXP[i - 255]
 
 # Define basic operations in Galois fields
 
@@ -53,7 +53,7 @@ def gf_sub(x, y):
     return x ^ y
 
 # NOTE: since we are in mod 2, addition and subtraction gives the same result
-    
+
 def gf_mul(x, y):
     if x == 0 or y == 0:
         return 0
@@ -66,16 +66,16 @@ def gf_div(x, y):
     if x == 0:
         return 0
     else:
-        return GFEXP[(GFLOG[x]-GFLOG[y]+255) % 255]
+        return GFEXP[((GFLOG[x]-GFLOG[y])+255) % 255]
 
 def gf_pow(x, power):
     return GFEXP[(GFLOG[x] * power) % 255]
 
 def polyMul(A, B):
-    # initialize the product
+# initialize the product
     size = len(A) + len(B) - 1
     product = [0] * size
-	
+
     # multiply
     for i in range(0, len(B)):
         for j in range(0, len(A)):
@@ -85,7 +85,7 @@ def polyMul(A, B):
     return (product)
 
 def polyDiv(dividend, divisor):
-    # initialize
+# initialize
     output = list(dividend)
     length = len(dividend) - (len(divisor)-1)
 
@@ -112,20 +112,20 @@ def RSEncode(input, errorSize):
     modInput = input + [0] * (len(gen)-1)
 
     res, remainder = polyDiv(modInput, gen)
-    
+
     return input + remainder
 
 
-# testing code for encoding
-msg_hex = [0x40, 0xd2, 0x75, 0x47, 0x76, 0x17, 0x32, 0x06, 0x27, 0x26, 0x96, 0xc6, 0xc6, 0x96, 0x70, 0xec]
+# # testing code for encoding
+# msg_hex = [0x40, 0xd2, 0x75, 0x47, 0x76, 0x17, 0x32, 0x06, 0x27, 0x26, 0x96, 0xc6, 0xc6, 0x96, 0x70, 0xec]
 
-msg_bin = [0b01000000, 0b11010010, 0b01110101, 0b01000111, 0b01110110, 0b00010111, 0b00110010, 0b0110, 0b00100111, 0b00100110, 0b10010110, 0b11000110, 0b11000110, 0b10010110, 0b01110000, 0b11101100]
+# msg_bin = [0b01000000, 0b11010010, 0b01110101, 0b01000111, 0b01110110, 0b00010111, 0b00110010, 0b0110, 0b00100111, 0b00100110, 0b10010110, 0b11000110, 0b11000110, 0b10010110, 0b01110000, 0b11101100]
 
-msg = RSEncode(msg_bin, 10)
+# msg = RSEncode(msg_bin, 10)
 
-for i in range(0,len(msg)):
-    print(hex(msg[i]), end=' ')
-    #print(bin(msg[i]), end=' ')
+# for i in range(0,len(msg)):
+#     print(hex(msg[i]), end=' ')
+# #print(bin(msg[i]), end=' ')
 
 
 # Partial decoding
@@ -144,19 +144,34 @@ def isCorrupted(message, errorSize):
         syndromes[i] = gf_poly_eval(message, GFEXP[i])
     return max(syndromes) != 0
 
-msg[0] = 0xd2
-print(isCorrupted(msg,10))
-
 if __name__ == '__main__':
-	fileName = sys.argv[0]
-	errorSize = sys.argv[1]
-	
-	bitStream = readFile(fileName)
-	
-	encodedMessage = RSncode(bitStream, errorSize)
-	print("This is the encoded message for error size: " + errorSize + ": " + encodedMessage
-	
-	if isCorrupted(encodedMessage, errorSize):
-		print("This message has been corrupted: " + encodedMessage)
-	else:
-		print("This message has not been corrupted: " + encodedMessage)
+    initialize()
+    fileName = sys.argv[1]
+    errorSize = int(sys.argv[2])
+
+    bitStream = readFile(fileName)
+    print(type(bitStream[0]))
+    encodedMessage = RSEncode(bitStream, errorSize)
+    printEncoded = []
+
+    for i in range(len(encodedMessage)):
+        printEncoded.append(bin(encodedMessage[i]))
+    print("This is the encoded message for error size: " + str(errorSize) + ": " + str(printEncoded))
+
+    #message not corrupted yet, want to show that isCorrupted works
+    print("Before corruption...")
+    if isCorrupted(encodedMessage, errorSize):
+        print("This message has been corrupted: " + str(printEncoded))
+    else:
+        print("This message has not been corrupted: " + str(printEncoded))
+
+    #corrupting message
+    encodedMessage[1] = 24
+
+    #checking if message is corrupted, should return that it is.
+    print("After corruption...")
+    if isCorrupted(encodedMessage, errorSize):
+        print("This message has been corrupted: " + str(printEncoded))
+    else:
+        print("This message has not been corrupted: " + str(printEncoded))
+    
